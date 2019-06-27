@@ -43,6 +43,10 @@ class LogSuccessfulLogin
                 return false;
             }
         }
+        $disableGuards = config('authentication-log.disable_guards', []);
+        if (is_array($disableGuards) && count($disableGuards) > 0 && in_array($event->guard, $disableGuards)) {
+            return false;
+        }
 
         $ip = $this->request->ip();
         $userAgent = $this->request->userAgent();
