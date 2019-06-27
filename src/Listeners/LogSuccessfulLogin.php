@@ -20,7 +20,7 @@ class LogSuccessfulLogin
     /**
      * Create the event listener.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request $request
      * @return void
      */
     public function __construct(Request $request)
@@ -31,17 +31,15 @@ class LogSuccessfulLogin
     /**
      * Handle the event.
      *
-     * @param  Login  $event
+     * @param  Login $event
      * @return void
      */
     public function handle(Login $event)
     {
         $user = $event->user;
-        if(method_exists($user, 'hasRole')) {
-            $disableRoles = config('authentication-log.disable_roles', []);
-            if(is_array($disableRoles) && count($disableRoles) > 0 && $user->hasAnyRole($disableRoles)) {
-                return false;
-            }
+        $disableGuards = config('authentication-log.disable_guards', []);
+        if (is_array($disableGuards) && count($disableGuards) > 0 && in_array($event->guard, $disableGuards)) {
+            return false;
         }
 
         $ip = $this->request->ip();
@@ -56,7 +54,7 @@ class LogSuccessfulLogin
 
         $user->authentications()->save($authenticationLog);
 
-        if (! $known && config('authentication-log.notify')) {
+        if (!$known && config('authentication-log.notify')) {
             $user->notify(new NewDevice($authenticationLog));
         }
     }
