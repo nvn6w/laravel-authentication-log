@@ -37,6 +37,13 @@ class LogSuccessfulLogout
     {
         if ($event->user) {
             $user = $event->user;
+            if(method_exists($user, 'hasRole')) {
+                $disableRoles = config('authentication-log.disable_roles', []);
+                if(is_array($disableRoles) && count($disableRoles) > 0 && $user->hasAnyRole($disableRoles)) {
+                    return false;
+                }
+            }
+
             $ip = $this->request->ip();
             $userAgent = $this->request->userAgent();
             $authenticationLog = $user->authentications()->whereIpAddress($ip)->whereUserAgent($userAgent)->first();

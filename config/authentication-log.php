@@ -24,5 +24,8 @@ return [
     */
 
     'older' => 365,
+    'disable_roles' => [
+        'Admin'
+    ]
 
 ];
